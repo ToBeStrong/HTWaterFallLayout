@@ -1,5 +1,5 @@
 //
-//  HMViewController.h
+//  HMShopsViewController.h
 //  06-瀑布流
 //
 //  Created by apple on 14-7-28.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface HMViewController : UIViewController
+@interface HMShopsViewController : UIViewController
 
 @end

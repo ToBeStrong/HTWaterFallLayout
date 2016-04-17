@@ -64,13 +64,37 @@
     return self;
 }
 
+- (void)willMoveToSuperview:(UIView *)newSuperview
+{
+    [self reloadData];
+}
+
 #pragma mark - 公共接口
 /**
+ *  cell的宽度
+ */
+- (CGFloat)cellWidth
+{
+    // 总列数
+    int numberOfColumns = [self numberOfColumns];
+    CGFloat leftM = [self marginForType:HMWaterflowViewMarginTypeLeft];
+    CGFloat rightM = [self marginForType:HMWaterflowViewMarginTypeRight];
+    CGFloat columnM = [self marginForType:HMWaterflowViewMarginTypeColumn];
+    return (self.bounds.size.width - leftM - rightM - (numberOfColumns - 1) * columnM) / numberOfColumns;
+}
+
+/**
  *  刷新数据
- *  1.计算每一个cell的frame
  */
 - (void)reloadData
 {
+    // 清空之前的所有数据
+    // 移除正在正在显示cell
+    [self.displayingCells.allValues makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [self.displayingCells removeAllObjects];
+    [self.cellFrames removeAllObjects];
+    [self.reusableCells removeAllObjects];
+    
     // cell的总数
     int numberOfCells = [self.dataSource numberOfCellsInWaterflowView:self];
     
@@ -81,12 +105,11 @@
     CGFloat topM = [self marginForType:HMWaterflowViewMarginTypeTop];
     CGFloat bottomM = [self marginForType:HMWaterflowViewMarginTypeBottom];
     CGFloat leftM = [self marginForType:HMWaterflowViewMarginTypeLeft];
-    CGFloat rightM = [self marginForType:HMWaterflowViewMarginTypeRight];
     CGFloat columnM = [self marginForType:HMWaterflowViewMarginTypeColumn];
     CGFloat rowM = [self marginForType:HMWaterflowViewMarginTypeRow];
     
     // cell的宽度
-    CGFloat cellW = (self.width - leftM - rightM - (numberOfColumns - 1) * columnM) / numberOfColumns;
+    CGFloat cellW = [self cellWidth];
     
     // 用一个C语言数组存放所有列的最大Y值
     CGFloat maxYOfColumns[numberOfColumns];
@@ -202,7 +225,7 @@
 - (BOOL)isInScreen:(CGRect)frame
 {
     return (CGRectGetMaxY(frame) > self.contentOffset.y) &&
-    (CGRectGetMinY(frame) < self.contentOffset.y + self.height);
+    (CGRectGetMinY(frame) < self.contentOffset.y + self.bounds.size.height);
 }
 
 /**
